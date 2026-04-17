@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>转人工渠道分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; font-weight: 600; margin-bottom: 10px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .chart-container { padding: 20px; }
+        #chart { width: 100%; height: 700px; }
+        .legend-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px 30px;
+            background: #fafafa;
+        }
+        .legend-group {
+            flex: 1;
+            min-width: 280px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .legend-group h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid;
+        }
+        .legend-group.app h3 { color: #1890ff; border-color: #1890ff; }
+        .legend-group.miniprogram h3 { color: #52c41a; border-color: #52c41a; }
+        .legend-group.business h3 { color: #fa8c16; border-color: #fa8c16; }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            margin: 4px;
+            background: #f5f5f5;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .legend-item:hover { transform: scale(1.05); }
+        .legend-item.inactive { opacity: 0.4; text-decoration: line-through; }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .tip {
+            padding: 15px 30px;
+            background: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            font-size: 13px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 转人工渠道分析</h1>
+            <p>更新时间: 2026-04-17 14:52 | 50个渠道</p>
+        </div>
+        <div class="chart-container">
+            <div id="chart"></div>
+        </div>
+        <div class="tip">💡 点击图例可切换显示/隐藏对应渠道</div>
+        <div class="legend-section">
+            <div class="legend-group app">
+                <h3>🔵 APP渠道</h3>
+                <div id="legend-app"></div>
+            </div>
+            <div class="legend-group miniprogram">
+                <h3>🟢 小程序/第三方</h3>
+                <div id="legend-miniprogram"></div>
+            </div>
+            <div class="legend-group business">
+                <h3>🟠 业务渠道</h3>
+                <div id="legend-business"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const dates = ["接入会话数", "74", "10", "18", "10", "24", "41", "9", "9", "28", "5", "1", "18", "78", "41", "121", "144", "39", "132", "10"];
+        const seriesData = [{"name": "3.24", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#fa8c16"}, "lineStyle": {"width": 2, "color": "#fa8c16"}, "data": [null, 169.0, 25.0, 47.0, 14.0, 0.0, 58.0, 11.0, 10.0, 34.0, 6.0, 2.0, 48.0, 303.0, 107.0, 409.0, 336.0, 55.0, 250.0, 15.0]}, {"name": "Unnamed: 2", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d46b08"}, "lineStyle": {"width": 2, "color": "#d46b08"}, "data": [null, 0.4379, 0.4, 0.383, 0.7143, null, 0.7069, 0.8182, 0.9, 0.8235, 0.8333, 0.5, 0.375, 0.2574, 0.3832, 0.2958, 0.4286, 0.7091, 0.528, 0.6667]}, {"name": "Unnamed: 3", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ad4e00"}, "lineStyle": {"width": 2, "color": "#ad4e00"}, "data": [null, 55.0, 13.0, 17.0, 12.0, 13.0, 42.0, 9.0, 19.0, 21.0, 3.0, 2.0, 8.0, 83.0, 59.0, 117.0, 109.0, 34.0, 120.0, 9.0]}, {"name": "3.25", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff9f43"}, "lineStyle": {"width": 2, "color": "#ff9f43"}, "data": [null, 132.0, 31.0, 53.0, 20.0, 0.0, 56.0, 12.0, 19.0, 27.0, 6.0, 4.0, 31.0, 302.0, 129.0, 456.0, 307.0, 50.0, 243.0, 15.0]}, {"name": "Unnamed: 5", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#feca57"}, "lineStyle": {"width": 2, "color": "#feca57"}, "data": [null, 0.4167, 0.4194, 0.3208, 0.6, null, 0.75, 0.75, 1.0, 0.7778, 0.5, 0.5, 0.2581, 0.2748, 0.4574, 0.2566, 0.355, 0.68, 0.4938, 0.6]}, {"name": "Unnamed: 6", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff6b6b"}, "lineStyle": {"width": 2, "color": "#ff6b6b"}, "data": [null, 41.0, 10.0, 19.0, 10.0, 15.0, 52.0, 7.0, 5.0, 30.0, 4.0, 3.0, 22.0, 79.0, 31.0, 120.0, 100.0, 42.0, 111.0, 16.0]}, {"name": "3.26", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ee5a24"}, "lineStyle": {"width": 2, "color": "#ee5a24"}, "data": [null, 121.0, 24.0, 42.0, 14.0, 0.0, 68.0, 8.0, 6.0, 35.0, 6.0, 8.0, 48.0, 283.0, 92.0, 412.0, 270.0, 62.0, 241.0, 24.0]}, {"name": "Unnamed: 8", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d63031"}, "lineStyle": {"width": 2, "color": "#d63031"}, "data": [null, 0.3388, 0.4167, 0.4524, 0.7143, null, 0.7647, 0.875, 0.8333, 0.8571, 0.6667, 0.375, 0.4583, 0.2792, 0.337, 0.2913, 0.3704, 0.6774, 0.4606, 0.6667]}, {"name": "Unnamed: 9", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#a55eea"}, "lineStyle": {"width": 2, "color": "#a55eea"}, "data": [null, 30.0, 10.0, 9.0, 13.0, 10.0, 38.0, 11.0, 9.0, 18.0, 8.0, 3.0, 14.0, 48.0, 22.0, 72.0, 65.0, 32.0, 74.0, 10.0]}, {"name": "3.29", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#5f27cd"}, "lineStyle": {"width": 2, "color": "#5f27cd"}, "data": [null, 115.0, 25.0, 27.0, 15.0, 0.0, 44.0, 14.0, 10.0, 24.0, 9.0, 4.0, 53.0, 199.0, 65.0, 257.0, 222.0, 44.0, 163.0, 12.0]}, {"name": "Unnamed: 11", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#fa8c16"}, "lineStyle": {"width": 2, "color": "#fa8c16"}, "data": [null, 0.2609, 0.4, 0.3333, 0.8667, null, 0.8636, 0.7857, 0.9, 0.75, 0.8889, 0.75, 0.2642, 0.2412, 0.3385, 0.2802, 0.2928, 0.7273, 0.454, 0.8333]}, {"name": "Unnamed: 12", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d46b08"}, "lineStyle": {"width": 2, "color": "#d46b08"}, "data": [null, 35.0, 7.0, 7.0, 13.0, 12.0, 54.0, 14.0, 31.0, 19.0, 6.0, 0.0, 17.0, 43.0, 40.0, 107.0, 113.0, 40.0, 93.0, 13.0]}, {"name": "3.3", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ad4e00"}, "lineStyle": {"width": 2, "color": "#ad4e00"}, "data": [null, 115.0, 33.0, 31.0, 14.0, 0.0, 68.0, 15.0, 32.0, 21.0, 6.0, 4.0, 53.0, 198.0, 105.0, 369.0, 300.0, 59.0, 250.0, 19.0]}, {"name": "Unnamed: 14", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff9f43"}, "lineStyle": {"width": 2, "color": "#ff9f43"}, "data": [null, 0.3043, 0.2121, 0.2258, 0.9286, null, 0.7941, 0.9333, 0.9688, 0.9048, 1.0, 0.0, 0.3208, 0.2172, 0.381, 0.29, 0.3767, 0.678, 0.372, 0.6842]}, {"name": "Unnamed: 15", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#feca57"}, "lineStyle": {"width": 2, "color": "#feca57"}, "data": [null, 66.0, 20.0, 4.0, 14.0, 31.0, 46.0, 26.0, 19.0, 18.0, 11.0, 1.0, 24.0, 71.0, 51.0, 50.0, 163.0, 46.0, 129.0, 13.0]}, {"name": "3.31", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff6b6b"}, "lineStyle": {"width": 2, "color": "#ff6b6b"}, "data": [null, 169.0, 59.0, 12.0, 19.0, 0.0, 61.0, 25.0, 23.0, 23.0, 11.0, 4.0, 55.0, 187.0, 173.0, 209.0, 348.0, 66.0, 254.0, 16.0]}, {"name": "Unnamed: 17", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ee5a24"}, "lineStyle": {"width": 2, "color": "#ee5a24"}, "data": [null, 0.3905, 0.339, 0.3333, 0.7368, null, 0.7541, 1.04, 0.8261, 0.7826, 1.0, 0.25, 0.4364, 0.3797, 0.2948, 0.2392, 0.4684, 0.697, 0.5079, 0.8125]}, {"name": "Unnamed: 18", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d63031"}, "lineStyle": {"width": 2, "color": "#d63031"}, "data": [null, 81.0, 22.0, 5.0, 6.0, 25.0, 64.0, 20.0, 22.0, 25.0, 3.0, 1.0, 23.0, 70.0, 89.0, 37.0, 136.0, 35.0, 138.0, 16.0]}, {"name": "4.1", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#a55eea"}, "lineStyle": {"width": 2, "color": "#a55eea"}, "data": [null, 249.0, 55.0, 12.0, 8.0, 0.0, 74.0, 21.0, 23.0, 26.0, 5.0, 3.0, 54.0, 189.0, 298.0, 80.0, 339.0, 61.0, 252.0, 16.0]}, {"name": "Unnamed: 20", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#5f27cd"}, "lineStyle": {"width": 2, "color": "#5f27cd"}, "data": [null, 0.3253, 0.4, 0.4167, 0.75, null, 0.8649, 0.9524, 0.9565, 0.9615, 0.6, 0.3333, 0.4259, 0.3704, 0.2987, 0.4625, 0.4012, 0.5738, 0.5476, 1.0]}, {"name": "Unnamed: 21", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#fa8c16"}, "lineStyle": {"width": 2, "color": "#fa8c16"}, "data": [null, 76.0, 27.0, 4.0, 11.0, 21.0, 42.0, 8.0, 18.0, 31.0, 6.0, 4.0, 22.0, 83.0, 106.0, 36.0, 138.0, 40.0, 129.0, 14.0]}, {"name": "4.2", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d46b08"}, "lineStyle": {"width": 2, "color": "#d46b08"}, "data": [null, 227.0, 69.0, 8.0, 12.0, 0.0, 48.0, 8.0, 19.0, 38.0, 7.0, 7.0, 67.0, 175.0, 339.0, 81.0, 302.0, 49.0, 230.0, 18.0]}, {"name": "Unnamed: 23", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ad4e00"}, "lineStyle": {"width": 2, "color": "#ad4e00"}, "data": [null, 0.3348, 0.3913, 0.5, 0.9167, null, 0.875, 1.0, 0.9474, 0.8158, 0.8571, 0.5714, 0.3284, 0.4743, 0.3127, 0.4444, 0.457, 0.8163, 0.5609, 0.7778]}, {"name": "Unnamed: 24", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff9f43"}, "lineStyle": {"width": 2, "color": "#ff9f43"}, "data": [null, 18.0, 30.0, 1.0, 11.0, 19.0, 36.0, 9.0, 10.0, 22.0, 1.0, 2.0, 21.0, 32.0, 36.0, 7.0, 150.0, 32.0, 66.0, 7.0]}, {"name": "4.6", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#feca57"}, "lineStyle": {"width": 2, "color": "#feca57"}, "data": [null, 98.0, 44.0, 2.0, 12.0, 0.0, 44.0, 14.0, 11.0, 24.0, 2.0, 3.0, 40.0, 116.0, 148.0, 26.0, 201.0, 43.0, 126.0, 8.0]}, {"name": "Unnamed: 26", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff6b6b"}, "lineStyle": {"width": 2, "color": "#ff6b6b"}, "data": [null, 0.1837, 0.6818, 0.5, 0.9167, null, 0.8182, 0.6429, 0.9091, 0.9167, 0.5, 0.6667, 0.525, 0.2759, 0.2432, 0.2692, 0.7463, 0.7442, 0.5238, 0.875]}, {"name": "Unnamed: 27", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ee5a24"}, "lineStyle": {"width": 2, "color": "#ee5a24"}, "data": [null, 60.0, 13.0, 2.0, 4.0, 22.0, 38.0, 11.0, 17.0, 20.0, 2.0, 6.0, 11.0, 55.0, 59.0, 30.0, 106.0, 38.0, 124.0, 21.0]}, {"name": "4.7", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d63031"}, "lineStyle": {"width": 2, "color": "#d63031"}, "data": [null, 190.0, 37.0, 6.0, 6.0, 0.0, 57.0, 11.0, 17.0, 28.0, 4.0, 11.0, 50.0, 134.0, 231.0, 60.0, 240.0, 60.0, 235.0, 23.0]}, {"name": "Unnamed: 29", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#a55eea"}, "lineStyle": {"width": 2, "color": "#a55eea"}, "data": [null, 0.3158, 0.3514, 0.3333, 0.6667, null, 0.6667, 1.0, 1.0, 0.7143, 0.5, 0.5455, 0.22, 0.4104, 0.2554, 0.5, 0.4417, 0.6333, 0.5277, 0.913]}, {"name": "Unnamed: 30", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#5f27cd"}, "lineStyle": {"width": 2, "color": "#5f27cd"}, "data": [null, 67.0, 12.0, 1.0, 6.0, 21.0, 44.0, 7.0, 14.0, 23.0, 7.0, 1.0, 19.0, 43.0, 73.0, 28.0, 126.0, 50.0, 101.0, 11.0]}, {"name": "4.8", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#fa8c16"}, "lineStyle": {"width": 2, "color": "#fa8c16"}, "data": [null, 234.0, 45.0, 9.0, 6.0, 0.0, 50.0, 7.0, 15.0, 30.0, 7.0, 3.0, 43.0, 107.0, 231.0, 79.0, 272.0, 65.0, 181.0, 14.0]}, {"name": "Unnamed: 32", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d46b08"}, "lineStyle": {"width": 2, "color": "#d46b08"}, "data": [null, 0.2863, 0.2667, 0.1111, 1.0, null, 0.88, 1.0, 0.9333, 0.7667, 1.0, 0.3333, 0.4419, 0.4019, 0.316, 0.3544, 0.4632, 0.7692, 0.558, 0.7857]}, {"name": "Unnamed: 33", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ad4e00"}, "lineStyle": {"width": 2, "color": "#ad4e00"}, "data": [null, 49.0, 15.0, 1.0, 8.0, 28.0, 45.0, 8.0, 12.0, 40.0, 2.0, 2.0, 14.0, 32.0, 67.0, 44.0, 122.0, 40.0, 83.0, 14.0]}, {"name": "4.9", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff9f43"}, "lineStyle": {"width": 2, "color": "#ff9f43"}, "data": [null, 151.0, 34.0, 8.0, 9.0, 0.0, 58.0, 7.0, 14.0, 56.0, 2.0, 2.0, 42.0, 87.0, 267.0, 74.0, 276.0, 50.0, 163.0, 15.0]}, {"name": "Unnamed: 35", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#feca57"}, "lineStyle": {"width": 2, "color": "#feca57"}, "data": [null, 0.3245, 0.4412, 0.125, 0.8889, null, 0.7759, 1.1429, 0.8571, 0.7143, 1.0, 1.0, 0.3333, 0.3678, 0.2509, 0.5946, 0.442, 0.8, 0.5092, 0.9333]}, {"name": "Unnamed: 36", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff6b6b"}, "lineStyle": {"width": 2, "color": "#ff6b6b"}, "data": [null, 36.0, 16.0, 2.0, 5.0, 13.0, 41.0, 10.0, 9.0, 13.0, 4.0, 1.0, 14.0, 26.0, 70.0, 21.0, 77.0, 31.0, 52.0, 13.0]}, {"name": "4.12", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ee5a24"}, "lineStyle": {"width": 2, "color": "#ee5a24"}, "data": [null, 138.0, 41.0, 6.0, 5.0, null, 46.0, 10.0, 10.0, 21.0, 5.0, 5.0, 45.0, 77.0, 241.0, 46.0, 197.0, 38.0, 104.0, 15.0]}, {"name": "Unnamed: 38", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d63031"}, "lineStyle": {"width": 2, "color": "#d63031"}, "data": [null, 0.2609, 0.3902, 0.3333, 1.0, null, 0.8913, 1.0, 0.9, 0.619, 0.8, 0.2, 0.3111, 0.3377, 0.2905, 0.4565, 0.3909, 0.8158, 0.5, 0.8667]}, {"name": "Unnamed: 39", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#a55eea"}, "lineStyle": {"width": 2, "color": "#a55eea"}, "data": [null, 38.0, 11.0, 6.0, 8.0, 15.0, 46.0, 11.0, 14.0, 31.0, 4.0, 3.0, 25.0, 36.0, 52.0, 18.0, 96.0, 27.0, 105.0, 14.0]}, {"name": "4.13", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#5f27cd"}, "lineStyle": {"width": 2, "color": "#5f27cd"}, "data": [null, 115.0, 35.0, 13.0, 10.0, null, 55.0, 11.0, 14.0, 38.0, 5.0, 7.0, 49.0, 89.0, 229.0, 50.0, 244.0, 36.0, 172.0, 19.0]}, {"name": "Unnamed: 41", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#fa8c16"}, "lineStyle": {"width": 2, "color": "#fa8c16"}, "data": [null, 0.3304, 0.3143, 0.4615, 0.8, null, 0.8364, 1.0, 1.0, 0.8158, 0.8, 0.4286, 0.5102, 0.4045, 0.2271, 0.36, 0.3934, 0.75, 0.6105, 0.7368]}, {"name": "Unnamed: 42", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d46b08"}, "lineStyle": {"width": 2, "color": "#d46b08"}, "data": [null, 43.0, 15.0, 4.0, 3.0, 23.0, 36.0, 8.0, 13.0, 29.0, 6.0, 3.0, 10.0, 32.0, 55.0, 33.0, 90.0, 29.0, 91.0, 11.0]}, {"name": "4.14", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ad4e00"}, "lineStyle": {"width": 2, "color": "#ad4e00"}, "data": [null, 145.0, 39.0, 7.0, 3.0, null, 40.0, 9.0, 14.0, 37.0, 5.0, 3.0, 43.0, 88.0, 236.0, 72.0, 238.0, 42.0, 176.0, 16.0]}, {"name": "Unnamed: 44", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff9f43"}, "lineStyle": {"width": 2, "color": "#ff9f43"}, "data": [null, 0.2966, 0.3846, 0.5714, 1.0, null, 0.9, 0.8889, 0.9286, 0.7838, 1.2, 1.0, 0.2326, 0.3636, 0.2331, 0.4583, 0.3782, 0.6905, 0.517, 0.6875]}, {"name": "Unnamed: 45", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#feca57"}, "lineStyle": {"width": 2, "color": "#feca57"}, "data": [null, 44.0, 16.0, 5.0, 8.0, 22.0, 35.0, 9.0, 16.0, 38.0, 5.0, 3.0, 14.0, 20.0, 64.0, 34.0, 112.0, 35.0, 62.0, 5.0]}, {"name": "4.15", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff6b6b"}, "lineStyle": {"width": 2, "color": "#ff6b6b"}, "data": [null, 129.0, 38.0, 11.0, 8.0, null, 43.0, 9.0, 18.0, 42.0, 5.0, 5.0, 39.0, 72.0, 280.0, 79.0, 271.0, 48.0, 146.0, 8.0]}, {"name": "Unnamed: 47", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ee5a24"}, "lineStyle": {"width": 2, "color": "#ee5a24"}, "data": [null, 0.3411, 0.4211, 0.4545, 1.0, null, 0.814, 1.0, 0.8889, 0.9048, 1.0, 0.6, 0.359, 0.2778, 0.2286, 0.4304, 0.4133, 0.7292, 0.4247, 0.625]}, {"name": "Unnamed: 48", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d63031"}, "lineStyle": {"width": 2, "color": "#d63031"}, "data": [null, 34.0, 11.0, 6.0, 5.0, 14.0, 34.0, 5.0, 10.0, 106.0, 15.0, 2.0, 10.0, 21.0, 70.0, 39.0, 87.0, 32.0, 54.0, 4.0]}, {"name": "4.16", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#a55eea"}, "lineStyle": {"width": 2, "color": "#a55eea"}, "data": [null, 129.0, 33.0, 10.0, 6.0, 0.0, 43.0, 6.0, 10.0, 119.0, 18.0, 5.0, 44.0, 65.0, 290.0, 87.0, 219.0, 45.0, 147.0, 10.0]}, {"name": "Unnamed: 50", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#5f27cd"}, "lineStyle": {"width": 2, "color": "#5f27cd"}, "data": [null, 0.2636, 0.3333, 0.6, 0.8333, null, 0.7907, 0.8333, 1.0, 0.8908, 0.8333, 0.4, 0.2273, 0.3231, 0.2414, 0.4483, 0.3973, 0.7111, 0.3673, 0.4]}];
+        const legendConfig = [{"name": "3.24", "category": "业务渠道"}, {"name": "Unnamed: 2", "category": "业务渠道"}, {"name": "Unnamed: 3", "category": "业务渠道"}, {"name": "3.25", "category": "业务渠道"}, {"name": "Unnamed: 5", "category": "业务渠道"}, {"name": "Unnamed: 6", "category": "业务渠道"}, {"name": "3.26", "category": "业务渠道"}, {"name": "Unnamed: 8", "category": "业务渠道"}, {"name": "Unnamed: 9", "category": "业务渠道"}, {"name": "3.29", "category": "业务渠道"}, {"name": "Unnamed: 11", "category": "业务渠道"}, {"name": "Unnamed: 12", "category": "业务渠道"}, {"name": "3.3", "category": "业务渠道"}, {"name": "Unnamed: 14", "category": "业务渠道"}, {"name": "Unnamed: 15", "category": "业务渠道"}, {"name": "3.31", "category": "业务渠道"}, {"name": "Unnamed: 17", "category": "业务渠道"}, {"name": "Unnamed: 18", "category": "业务渠道"}, {"name": "4.1", "category": "业务渠道"}, {"name": "Unnamed: 20", "category": "业务渠道"}, {"name": "Unnamed: 21", "category": "业务渠道"}, {"name": "4.2", "category": "业务渠道"}, {"name": "Unnamed: 23", "category": "业务渠道"}, {"name": "Unnamed: 24", "category": "业务渠道"}, {"name": "4.6", "category": "业务渠道"}, {"name": "Unnamed: 26", "category": "业务渠道"}, {"name": "Unnamed: 27", "category": "业务渠道"}, {"name": "4.7", "category": "业务渠道"}, {"name": "Unnamed: 29", "category": "业务渠道"}, {"name": "Unnamed: 30", "category": "业务渠道"}, {"name": "4.8", "category": "业务渠道"}, {"name": "Unnamed: 32", "category": "业务渠道"}, {"name": "Unnamed: 33", "category": "业务渠道"}, {"name": "4.9", "category": "业务渠道"}, {"name": "Unnamed: 35", "category": "业务渠道"}, {"name": "Unnamed: 36", "category": "业务渠道"}, {"name": "4.12", "category": "业务渠道"}, {"name": "Unnamed: 38", "category": "业务渠道"}, {"name": "Unnamed: 39", "category": "业务渠道"}, {"name": "4.13", "category": "业务渠道"}, {"name": "Unnamed: 41", "category": "业务渠道"}, {"name": "Unnamed: 42", "category": "业务渠道"}, {"name": "4.14", "category": "业务渠道"}, {"name": "Unnamed: 44", "category": "业务渠道"}, {"name": "Unnamed: 45", "category": "业务渠道"}, {"name": "4.15", "category": "业务渠道"}, {"name": "Unnamed: 47", "category": "业务渠道"}, {"name": "Unnamed: 48", "category": "业务渠道"}, {"name": "4.16", "category": "业务渠道"}, {"name": "Unnamed: 50", "category": "业务渠道"}];
+        const colorMap = {};
+        seriesData.forEach(s => { colorMap[s.name] = s.itemStyle.color; });
+        const chart = echarts.init(document.getElementById('chart'));
+        chart.setOption({
+            tooltip: {
+                trigger: 'axis',
+                formatter: function(params) {
+                    let result = `<div style="font-weight:bold;margin-bottom:8px;">📅 ${params[0].axisValue}</div>`;
+                    params.forEach(p => {
+                        if (p.value !== null) {
+                            result += `<div style="margin:4px 0;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${p.color};margin-right:6px;"></span>${p.seriesName}: <strong>${(p.value * 100).toFixed(1)}%</strong></div>`;
+                        }
+                    });
+                    return result;
+                }
+            },
+            legend: { type: 'scroll', bottom: 10, data: seriesData.map(s => s.name) },
+            grid: { left: '3%', right: '4%', bottom: '15%', top: '3%', containLabel: true },
+            xAxis: { type: 'category', data: dates, axisLabel: { rotate: 45, fontSize: 11 } },
+            yAxis: {
+                type: 'value',
+                max: 1,
+                axisLabel: { formatter: function(val) { return (val * 100).toFixed(0) + '%'; } }
+            },
+            dataZoom: [{ type: 'inside' }, { type: 'slider', height: 25, bottom: '15%' }],
+            series: seriesData
+        });
+        window.addEventListener('resize', () => { chart.resize(); });
+        document.querySelectorAll('.legend-group').forEach(group => {
+            const type = group.classList.contains('app') ? 'APP渠道' : group.classList.contains('miniprogram') ? '小程序/第三方' : '业务渠道';
+            const container = group.querySelector('div');
+            legendConfig.filter(l => l.category === type).forEach(l => {
+                const item = document.createElement('span');
+                item.className = 'legend-item';
+                item.dataset.name = l.name;
+                item.innerHTML = `<span class="legend-color" style="background:${colorMap[l.name]}"></span>${l.name}`;
+                item.onclick = () => { chart.dispatchAction({ type: 'legendToggleSelect', name: l.name }); item.classList.toggle('inactive'); };
+                container.appendChild(item);
+            });
+        });
+    </script>
+</body>
+</html>
