@@ -1,156 +1,395 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>转人工渠道分析</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .header h1 { font-size: 28px; font-weight: 600; margin-bottom: 10px; }
-        .header p { font-size: 14px; opacity: 0.9; }
-        .chart-container { padding: 20px; }
-        #chart { width: 100%; height: 700px; }
-        .legend-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 20px 30px;
-            background: #fafafa;
-        }
-        .legend-group {
-            flex: 1;
-            min-width: 280px;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .legend-group h3 {
-            font-size: 14px;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid;
-        }
-        .legend-group.app h3 { color: #1890ff; border-color: #1890ff; }
-        .legend-group.miniprogram h3 { color: #52c41a; border-color: #52c41a; }
-        .legend-group.business h3 { color: #fa8c16; border-color: #fa8c16; }
-        .legend-item {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            margin: 4px;
-            background: #f5f5f5;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        .legend-item:hover { transform: scale(1.05); }
-        .legend-item.inactive { opacity: 0.4; text-decoration: line-through; }
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-        .tip {
-            padding: 15px 30px;
-            background: #e6f7ff;
-            border-left: 4px solid #1890ff;
-            font-size: 13px;
-            color: #333;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>转人工渠道分析</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #eff6ff 0%, #f7f5ff 50%, #fff8f1 100%);
+      color: #1f2937;
+      padding: 24px;
+    }
+    .page {
+      max-width: 1520px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #1677ff 0%, #3b82f6 45%, #7c3aed 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: 28px 32px;
+      box-shadow: 0 20px 60px rgba(59, 130, 246, 0.22);
+    }
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      font-weight: 700;
+    }
+    .hero p {
+      margin: 0;
+      font-size: 14px;
+      opacity: 0.92;
+      line-height: 1.8;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      padding: 18px 20px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+    .card-label {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    .card-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.1;
+    }
+    .card-sub {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .panel {
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 16px 50px rgba(15, 23, 42, 0.08);
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .toolbar-title {
+      font-size: 14px;
+      color: #475569;
+      margin-right: 4px;
+    }
+    .chip {
+      border: none;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #334155;
+      padding: 9px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+    .chip.active {
+      background: linear-gradient(135deg, #1677ff 0%, #7c3aed 100%);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(22, 119, 255, 0.22);
+    }
+    #chart {
+      width: 100%;
+      height: 760px;
+    }
+    .legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 14px;
+    }
+    .legend-group {
+      background: #fff;
+      border: 1px solid #eef2ff;
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .legend-group h3 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .legend-group small {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .legend-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: all .18s ease;
+      font-size: 12px;
+    }
+    .legend-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
+    }
+    .legend-item.inactive {
+      opacity: 0.45;
+      text-decoration: line-through;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: 0 0 10px;
+    }
+    .legend-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .legend-name { font-weight: 600; color: #1e293b; }
+    .legend-meta { color: #64748b; }
+    .tip {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.8;
+      background: #f8fbff;
+      border: 1px solid #dbeafe;
+      padding: 14px 16px;
+      border-radius: 14px;
+    }
+    @media (max-width: 960px) {
+      body { padding: 14px; }
+      .hero, .panel { border-radius: 18px; }
+      #chart { height: 620px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 转人工渠道分析</h1>
-            <p>更新时间: 2026-04-17 15:16 | 19个渠道 | 17天</p>
-        </div>
-        <div class="chart-container">
-            <div id="chart"></div>
-        </div>
-        <div class="tip">💡 点击图例可切换显示/隐藏对应渠道</div>
-        <div class="legend-section">
-            <div class="legend-group app">
-                <h3>🔵 APP渠道</h3>
-                <div id="legend-app"></div>
-            </div>
-            <div class="legend-group miniprogram">
-                <h3>🟢 小程序/第三方</h3>
-                <div id="legend-miniprogram"></div>
-            </div>
-            <div class="legend-group business">
-                <h3>🟠 业务渠道</h3>
-                <div id="legend-business"></div>
-            </div>
-        </div>
-    </div>
-    <script>
-        const dates = ["3.24", "3.25", "3.26", "3.29", "3.3", "3.31", "4.1", "4.2", "4.6", "4.7", "4.8", "4.9", "4.12", "4.13", "4.14", "4.15", "4.16"];
-        const seriesData = [{"name": "74", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#fa8c16"}, "lineStyle": {"width": 2, "color": "#fa8c16"}, "data": [55.0, 41.0, 30.0, 35.0, 66.0, 81.0, 76.0, 18.0, 60.0, 67.0, 49.0, 36.0, 38.0, 43.0, 44.0, 34.0, null]}, {"name": "10", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d46b08"}, "lineStyle": {"width": 2, "color": "#d46b08"}, "data": [9.0, 16.0, 10.0, 13.0, 13.0, 16.0, 14.0, 7.0, 21.0, 11.0, 14.0, 13.0, 14.0, 11.0, 5.0, 4.0, null]}, {"name": "18", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ad4e00"}, "lineStyle": {"width": 2, "color": "#ad4e00"}, "data": [8.0, 22.0, 14.0, 17.0, 24.0, 23.0, 22.0, 21.0, 11.0, 19.0, 14.0, 14.0, 25.0, 10.0, 14.0, 10.0, null]}, {"name": "10", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff9f43"}, "lineStyle": {"width": 2, "color": "#ff9f43"}, "data": [9.0, 16.0, 10.0, 13.0, 13.0, 16.0, 14.0, 7.0, 21.0, 11.0, 14.0, 13.0, 14.0, 11.0, 5.0, 4.0, null]}, {"name": "24", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#feca57"}, "lineStyle": {"width": 2, "color": "#feca57"}, "data": [13.0, 15.0, 10.0, 12.0, 31.0, 25.0, 21.0, 19.0, 22.0, 21.0, 28.0, 13.0, 15.0, 23.0, 22.0, 14.0, null]}, {"name": "41", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff6b6b"}, "lineStyle": {"width": 2, "color": "#ff6b6b"}, "data": [59.0, 31.0, 22.0, 40.0, 51.0, 89.0, 106.0, 36.0, 59.0, 73.0, 67.0, 70.0, 52.0, 55.0, 64.0, 70.0, null]}, {"name": "9", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ee5a24"}, "lineStyle": {"width": 2, "color": "#ee5a24"}, "data": [19.0, 5.0, 9.0, 31.0, 19.0, 22.0, 18.0, 10.0, 17.0, 14.0, 12.0, 9.0, 14.0, 13.0, 16.0, 10.0, null]}, {"name": "9", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d63031"}, "lineStyle": {"width": 2, "color": "#d63031"}, "data": [19.0, 5.0, 9.0, 31.0, 19.0, 22.0, 18.0, 10.0, 17.0, 14.0, 12.0, 9.0, 14.0, 13.0, 16.0, 10.0, null]}, {"name": "28", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#a55eea"}, "lineStyle": {"width": 2, "color": "#a55eea"}, "data": [21.0, 30.0, 18.0, 19.0, 18.0, 25.0, 31.0, 22.0, 20.0, 23.0, 40.0, 13.0, 31.0, 29.0, 38.0, 106.0, null]}, {"name": "5", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#5f27cd"}, "lineStyle": {"width": 2, "color": "#5f27cd"}, "data": [3.0, 4.0, 8.0, 6.0, 11.0, 3.0, 6.0, 1.0, 2.0, 7.0, 2.0, 4.0, 4.0, 6.0, 5.0, 15.0, null]}, {"name": "1", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#8854d0"}, "lineStyle": {"width": 2, "color": "#8854d0"}, "data": [2.0, 3.0, 3.0, 0.0, 1.0, 1.0, 4.0, 2.0, 6.0, 1.0, 2.0, 1.0, 3.0, 3.0, 3.0, 2.0, null]}, {"name": "18", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#3867d6"}, "lineStyle": {"width": 2, "color": "#3867d6"}, "data": [8.0, 22.0, 14.0, 17.0, 24.0, 23.0, 22.0, 21.0, 11.0, 19.0, 14.0, 14.0, 25.0, 10.0, 14.0, 10.0, null]}, {"name": "78", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#20bf6b"}, "lineStyle": {"width": 2, "color": "#20bf6b"}, "data": [83.0, 79.0, 48.0, 43.0, 71.0, 70.0, 83.0, 32.0, 55.0, 43.0, 32.0, 26.0, 36.0, 32.0, 20.0, 21.0, null]}, {"name": "41", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#0fb9b1"}, "lineStyle": {"width": 2, "color": "#0fb9b1"}, "data": [59.0, 31.0, 22.0, 40.0, 51.0, 89.0, 106.0, 36.0, 59.0, 73.0, 67.0, 70.0, 52.0, 55.0, 64.0, 70.0, null]}, {"name": "121", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#f7b731"}, "lineStyle": {"width": 2, "color": "#f7b731"}, "data": [117.0, 120.0, 72.0, 107.0, 50.0, 37.0, 36.0, 7.0, 30.0, 28.0, 44.0, 21.0, 18.0, 33.0, 34.0, 39.0, null]}, {"name": "144", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#fa8c16"}, "lineStyle": {"width": 2, "color": "#fa8c16"}, "data": [109.0, 100.0, 65.0, 113.0, 163.0, 136.0, 138.0, 150.0, 106.0, 126.0, 122.0, 77.0, 96.0, 90.0, 112.0, 87.0, null]}, {"name": "39", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#d46b08"}, "lineStyle": {"width": 2, "color": "#d46b08"}, "data": [34.0, 42.0, 32.0, 40.0, 46.0, 35.0, 40.0, 32.0, 38.0, 50.0, 40.0, 31.0, 27.0, 29.0, 35.0, 32.0, null]}, {"name": "132", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ad4e00"}, "lineStyle": {"width": 2, "color": "#ad4e00"}, "data": [120.0, 111.0, 74.0, 93.0, 129.0, 138.0, 129.0, 66.0, 124.0, 101.0, 83.0, 52.0, 105.0, 91.0, 62.0, 54.0, null]}, {"name": "10", "type": "line", "smooth": true, "symbol": "circle", "symbolSize": 6, "itemStyle": {"color": "#ff9f43"}, "lineStyle": {"width": 2, "color": "#ff9f43"}, "data": [9.0, 16.0, 10.0, 13.0, 13.0, 16.0, 14.0, 7.0, 21.0, 11.0, 14.0, 13.0, 14.0, 11.0, 5.0, 4.0, null]}];
-        const legendConfig = [{"name": "74", "category": "业务渠道"}, {"name": "10", "category": "业务渠道"}, {"name": "18", "category": "业务渠道"}, {"name": "10", "category": "业务渠道"}, {"name": "24", "category": "业务渠道"}, {"name": "41", "category": "业务渠道"}, {"name": "9", "category": "业务渠道"}, {"name": "9", "category": "业务渠道"}, {"name": "28", "category": "业务渠道"}, {"name": "5", "category": "业务渠道"}, {"name": "1", "category": "业务渠道"}, {"name": "18", "category": "业务渠道"}, {"name": "78", "category": "业务渠道"}, {"name": "41", "category": "业务渠道"}, {"name": "121", "category": "业务渠道"}, {"name": "144", "category": "业务渠道"}, {"name": "39", "category": "业务渠道"}, {"name": "132", "category": "业务渠道"}, {"name": "10", "category": "业务渠道"}];
-        const colorMap = {};
-        seriesData.forEach(s => { colorMap[s.name] = s.itemStyle.color; });
-        const chart = echarts.init(document.getElementById('chart'));
-        chart.setOption({
-            tooltip: {
-                trigger: 'axis',
-                formatter: function(params) {
-                    let result = `<div style="font-weight:bold;margin-bottom:8px;">📅 ${params[0].axisValue}</div>`;
-                    params.forEach(p => {
-                        if (p.value !== null) {
-                            result += `<div style="margin:4px 0;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${p.color};margin-right:6px;"></span>${p.seriesName}: <strong>${(p.value * 100).toFixed(1)}%</strong></div>`;
-                        }
-                    });
-                    return result;
-                }
-            },
-            legend: { type: 'scroll', bottom: 10, data: seriesData.map(s => s.name) },
-            grid: { left: '3%', right: '4%', bottom: '15%', top: '3%', containLabel: true },
-            xAxis: { type: 'category', data: dates, axisLabel: { rotate: 45, fontSize: 11 } },
-            yAxis: {
-                type: 'value',
-                max: 1,
-                axisLabel: { formatter: function(val) { return (val * 100).toFixed(0) + '%'; } }
-            },
-            dataZoom: [{ type: 'inside' }, { type: 'slider', height: 25, bottom: '15%' }],
-            series: seriesData
+  <div class="page">
+    <section class="hero">
+      <h1>📊 转人工渠道分析</h1>
+      <p>横轴为日期，纵轴为转人工比例，图例为不同渠道。支持按分类快速筛选、滚动缩放和单渠道显隐。</p>
+      <p>更新时间：2026-04-17 15:35 ｜ 最新日期：4.16 ｜ 渠道数：19 ｜ 日期数：17</p>
+    </section>
+
+    <section class="stats">
+      <div class="card">
+        <div class="card-label">最新统计日期</div>
+        <div class="card-value">4.16</div>
+        <div class="card-sub">数据自动来自 Excel 最新一列日期组</div>
+      </div>
+      <div class="card">
+        <div class="card-label">最新平均转人工比例</div>
+        <div class="card-value">54.97%</div>
+        <div class="card-sub">按当前全部渠道最新一日均值计算</div>
+      </div>
+      <div class="card">
+        <div class="card-label">渠道分类</div>
+        <div class="card-value">3 / 6 / 10</div>
+        <div class="card-sub">APP / 小程序第三方 / 业务渠道</div>
+      </div>
+      <div class="card">
+        <div class="card-label">纵轴上限</div>
+        <div class="card-value">120.00%</div>
+        <div class="card-sub">自动根据实际最大值留出可视化空间</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <span class="toolbar-title">分类快捷筛选：</span>
+        <button class="chip active" data-filter="全部">全部</button>
+        <button class="chip" data-filter="APP渠道">APP渠道</button>
+        <button class="chip" data-filter="小程序/第三方">小程序/第三方</button>
+        <button class="chip" data-filter="业务渠道">业务渠道</button>
+      </div>
+      <div id="chart"></div>
+      <div class="tip">提示：点击下方自定义图例可单独隐藏/显示渠道；点击分类按钮可只查看某一类渠道；底部滑块可缩放日期区间。</div>
+    </section>
+
+    <section class="legend-grid" id="legend-root"></section>
+  </div>
+
+  <script>
+    const dates = ["3.24", "3.25", "3.26", "3.29", "3.3", "3.31", "4.1", "4.2", "4.6", "4.7", "4.8", "4.9", "4.12", "4.13", "4.14", "4.15", "4.16"];
+    const seriesData = [{"name": "飞常准账户", "category": "APP渠道", "color": "#1677ff", "data": [0.7143, 0.6, 0.7143, 0.8667, 0.9286, 0.7368, 0.75, 0.9167, 0.9167, 0.6667, 1.0, 0.8889, 1.0, 0.8, 1.0, 1.0, 0.8333], "latestValue": 0.8333, "latestText": "83.33%", "latestAccess": 5.0, "latestRobot": 6.0}, {"name": "飞常准APP功能", "category": "APP渠道", "color": "#4096ff", "data": [0.7069, 0.75, 0.7647, 0.8636, 0.7941, 0.7541, 0.8649, 0.875, 0.8182, 0.6667, 0.88, 0.7759, 0.8913, 0.8364, 0.9, 0.814, 0.7907], "latestValue": 0.7907, "latestText": "79.07%", "latestAccess": 34.0, "latestRobot": 43.0}, {"name": "飞常准APP", "category": "APP渠道", "color": "#69b1ff", "data": [0.6667, 0.6, 0.6667, 0.8333, 0.6842, 0.8125, 1.0, 0.7778, 0.875, 0.913, 0.7857, 0.9333, 0.8667, 0.7368, 0.6875, 0.625, 0.4], "latestValue": 0.4, "latestText": "40.00%", "latestAccess": 4.0, "latestRobot": 10.0}, {"name": "微信查航班小程序机票订单详情", "category": "小程序/第三方", "color": "#95de64", "data": [0.383, 0.3208, 0.4524, 0.3333, 0.2258, 0.3333, 0.4167, 0.5, 0.5, 0.3333, 0.1111, 0.125, 0.3333, 0.4615, 0.5714, 0.4545, 0.6], "latestValue": 0.6, "latestText": "60.00%", "latestAccess": 6.0, "latestRobot": 10.0}, {"name": "支付宝小程序", "category": "小程序/第三方", "color": "#b7eb8f", "data": [0.2958, 0.2566, 0.2913, 0.2802, 0.29, 0.2392, 0.4625, 0.4444, 0.2692, 0.5, 0.3544, 0.5946, 0.4565, 0.36, 0.4583, 0.4304, 0.4483], "latestValue": 0.4483, "latestText": "44.83%", "latestAccess": 39.0, "latestRobot": 87.0}, {"name": "飞常准抖音小程序", "category": "小程序/第三方", "color": "#73d13d", "data": [0.4, 0.4194, 0.4167, 0.4, 0.2121, 0.339, 0.4, 0.3913, 0.6818, 0.3514, 0.2667, 0.4412, 0.3902, 0.3143, 0.3846, 0.4211, 0.3333], "latestValue": 0.3333, "latestText": "33.33%", "latestAccess": 11.0, "latestRobot": 33.0}, {"name": "高德订单详情", "category": "小程序/第三方", "color": "#389e0d", "data": [0.2574, 0.2748, 0.2792, 0.2412, 0.2172, 0.3797, 0.3704, 0.4743, 0.2759, 0.4104, 0.4019, 0.3678, 0.3377, 0.4045, 0.3636, 0.2778, 0.3231], "latestValue": 0.3231, "latestText": "32.31%", "latestAccess": 21.0, "latestRobot": 65.0}, {"name": "抖音次卡", "category": "小程序/第三方", "color": "#52c41a", "data": [0.4379, 0.4167, 0.3388, 0.2609, 0.3043, 0.3905, 0.3253, 0.3348, 0.1837, 0.3158, 0.2863, 0.3245, 0.2609, 0.3304, 0.2966, 0.3411, 0.2636], "latestValue": 0.2636, "latestText": "26.36%", "latestAccess": 34.0, "latestRobot": 129.0}, {"name": "支付宝小程序订单详情", "category": "小程序/第三方", "color": "#237804", "data": [0.3832, 0.4574, 0.337, 0.3385, 0.381, 0.2948, 0.2987, 0.3127, 0.2432, 0.2554, 0.316, 0.2509, 0.2905, 0.2271, 0.2331, 0.2286, 0.2414], "latestValue": 0.2414, "latestText": "24.14%", "latestAccess": 70.0, "latestRobot": 290.0}, {"name": "保险商城", "category": "业务渠道", "color": "#ff7a45", "data": [0.9, 1.0, 0.8333, 0.9, 0.9688, 0.8261, 0.9565, 0.9474, 0.9091, 1.0, 0.9333, 0.8571, 0.9, 1.0, 0.9286, 0.8889, 1.0], "latestValue": 1.0, "latestText": "100.00%", "latestAccess": 10.0, "latestRobot": 10.0}, {"name": "火车票", "category": "业务渠道", "color": "#d46b08", "data": [0.8235, 0.7778, 0.8571, 0.75, 0.9048, 0.7826, 0.9615, 0.8158, 0.9167, 0.7143, 0.7667, 0.7143, 0.619, 0.8158, 0.7838, 0.9048, 0.8908], "latestValue": 0.8908, "latestText": "89.08%", "latestAccess": 106.0, "latestRobot": 119.0}, {"name": "会员", "category": "业务渠道", "color": "#faad14", "data": [0.8182, 0.75, 0.875, 0.7857, 0.9333, 1.04, 0.9524, 1.0, 0.6429, 1.0, 1.0, 1.1429, 1.0, 1.0, 0.8889, 1.0, 0.8333], "latestValue": 0.8333, "latestText": "83.33%", "latestAccess": 5.0, "latestRobot": 6.0}, {"name": "用车", "category": "业务渠道", "color": "#fa541c", "data": [0.8333, 0.5, 0.6667, 0.8889, 1.0, 1.0, 0.6, 0.8571, 0.5, 0.5, 1.0, 1.0, 0.8, 0.8, 1.2, 1.0, 0.8333], "latestValue": 0.8333, "latestText": "83.33%", "latestAccess": 15.0, "latestRobot": 18.0}, {"name": "国际及港澳台机票", "category": "业务渠道", "color": "#d48806", "data": [0.7091, 0.68, 0.6774, 0.7273, 0.678, 0.697, 0.5738, 0.8163, 0.7442, 0.6333, 0.7692, 0.8, 0.8158, 0.75, 0.6905, 0.7292, 0.7111], "latestValue": 0.7111, "latestText": "71.11%", "latestAccess": 32.0, "latestRobot": 45.0}, {"name": "机票收银台", "category": "业务渠道", "color": "#ad6800", "data": [0.5, 0.5, 0.375, 0.75, 0.0, 0.25, 0.3333, 0.5714, 0.6667, 0.5455, 0.3333, 1.0, 0.2, 0.4286, 1.0, 0.6, 0.4], "latestValue": 0.4, "latestText": "40.00%", "latestAccess": 2.0, "latestRobot": 5.0}, {"name": "机票订单详情", "category": "业务渠道", "color": "#ffc53d", "data": [0.4286, 0.355, 0.3704, 0.2928, 0.3767, 0.4684, 0.4012, 0.457, 0.7463, 0.4417, 0.4632, 0.442, 0.3909, 0.3934, 0.3782, 0.4133, 0.3973], "latestValue": 0.3973, "latestText": "39.73%", "latestAccess": 87.0, "latestRobot": 219.0}, {"name": "国内机票", "category": "业务渠道", "color": "#873800", "data": [0.528, 0.4938, 0.4606, 0.454, 0.372, 0.5079, 0.5476, 0.5609, 0.5238, 0.5277, 0.558, 0.5092, 0.5, 0.6105, 0.517, 0.4247, 0.3673], "latestValue": 0.3673, "latestText": "36.73%", "latestAccess": 54.0, "latestRobot": 147.0}, {"name": "机票下单页", "category": "业务渠道", "color": "#ff9c6e", "data": [0.375, 0.2581, 0.4583, 0.2642, 0.3208, 0.4364, 0.4259, 0.3284, 0.525, 0.22, 0.4419, 0.3333, 0.3111, 0.5102, 0.2326, 0.359, 0.2273], "latestValue": 0.2273, "latestText": "22.73%", "latestAccess": 10.0, "latestRobot": 44.0}, {"name": "升级投诉", "category": "业务渠道", "color": "#fa8c16", "data": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "latestValue": null, "latestText": "-", "latestAccess": 14.0, "latestRobot": 0.0}];
+    const yAxisMax = 1.2;
+    const categoryOrder = ["APP渠道", "小程序/第三方", "业务渠道"];
+    const categoryIcons = {
+      "APP渠道": "🔵",
+      "小程序/第三方": "🟢",
+      "业务渠道": "🟠"
+    };
+
+    const chart = echarts.init(document.getElementById('chart'));
+    const selectedState = {};
+    seriesData.forEach(item => { selectedState[item.name] = true; });
+
+    function syncLegendUI() {
+      document.querySelectorAll('.legend-item').forEach((node) => {
+        const name = node.dataset.name;
+        node.classList.toggle('inactive', !selectedState[name]);
+      });
+    }
+
+    function setCategoryFilter(category) {
+      seriesData.forEach(item => {
+        selectedState[item.name] = category === '全部' ? true : item.category === category;
+      });
+      chart.setOption({ legend: { selected: selectedState } });
+      syncLegendUI();
+      document.querySelectorAll('.chip').forEach((chip) => {
+        chip.classList.toggle('active', chip.dataset.filter === category);
+      });
+    }
+
+    function renderLegend() {
+      const root = document.getElementById('legend-root');
+      root.innerHTML = '';
+      categoryOrder.forEach((category) => {
+        const items = seriesData.filter(item => item.category === category);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'legend-group';
+        wrapper.innerHTML = `<h3>${categoryIcons[category]} ${category}<small>${items.length} 个渠道</small></h3><div class="legend-list"></div>`;
+        const list = wrapper.querySelector('.legend-list');
+        items.forEach((item) => {
+          const node = document.createElement('button');
+          node.type = 'button';
+          node.className = 'legend-item';
+          node.dataset.name = item.name;
+          node.innerHTML = `
+            <span class="legend-dot" style="background:${item.color}"></span>
+            <span class="legend-text">
+              <span class="legend-name">${item.name}</span>
+              <span class="legend-meta">最新：${item.latestText}</span>
+            </span>
+          `;
+          node.addEventListener('click', () => {
+            selectedState[item.name] = !selectedState[item.name];
+            chart.dispatchAction({ type: 'legendToggleSelect', name: item.name });
+            syncLegendUI();
+          });
+          list.appendChild(node);
         });
-        window.addEventListener('resize', () => { chart.resize(); });
-        document.querySelectorAll('.legend-group').forEach(group => {
-            const type = group.classList.contains('app') ? 'APP渠道' : group.classList.contains('miniprogram') ? '小程序/第三方' : '业务渠道';
-            const container = group.querySelector('div');
-            legendConfig.filter(l => l.category === type).forEach(l => {
-                const item = document.createElement('span');
-                item.className = 'legend-item';
-                item.dataset.name = l.name;
-                item.innerHTML = `<span class="legend-color" style="background:${colorMap[l.name]}"></span>${l.name}`;
-                item.onclick = () => { chart.dispatchAction({ type: 'legendToggleSelect', name: l.name }); item.classList.toggle('inactive'); };
-                container.appendChild(item);
+        root.appendChild(wrapper);
+      });
+      syncLegendUI();
+    }
+
+    const option = {
+      animationDuration: 700,
+      color: seriesData.map(item => item.color),
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(255,255,255,0.97)',
+        borderColor: '#dbeafe',
+        borderWidth: 1,
+        textStyle: { color: '#0f172a' },
+        extraCssText: 'box-shadow:0 14px 35px rgba(15,23,42,0.12); border-radius:12px;',
+        formatter(params) {
+          const lines = params
+            .filter(item => item.value !== null && item.value !== undefined)
+            .sort((a, b) => (b.value ?? 0) - (a.value ?? 0))
+            .map(item => {
+              const value = `${(item.value * 100).toFixed(2)}%`;
+              return `<div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${item.color};margin-right:6px;"></span>${item.seriesName}</span>
+                <strong>${value}</strong>
+              </div>`;
             });
-        });
-    </script>
+          return `<div style="font-weight:700;margin-bottom:4px;">📅 ${params[0]?.axisValue ?? ''}</div>${lines.join('')}`;
+        }
+      },
+      legend: {
+        type: 'scroll',
+        bottom: 0,
+        selected: selectedState,
+        data: seriesData.map(item => item.name)
+      },
+      grid: {
+        left: '3%',
+        right: '3%',
+        top: 20,
+        bottom: 90,
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: dates,
+        axisLabel: { color: '#475569', rotate: 35 },
+        axisLine: { lineStyle: { color: '#cbd5e1' } }
+      },
+      yAxis: {
+        type: 'value',
+        name: '转人工比例',
+        min: 0,
+        max: yAxisMax,
+        axisLabel: {
+          color: '#475569',
+          formatter(value) {
+            return `${(value * 100).toFixed(0)}%`;
+          }
+        },
+        splitLine: { lineStyle: { color: '#e2e8f0', type: 'dashed' } }
+      },
+      dataZoom: [
+        { type: 'inside', start: 0, end: 100 },
+        {
+          type: 'slider',
+          height: 24,
+          bottom: 44,
+          borderColor: '#dbeafe',
+          fillerColor: 'rgba(22,119,255,0.14)',
+          handleStyle: { color: '#1677ff' }
+        }
+      ],
+      series: seriesData.map(item => ({
+        name: item.name,
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        symbol: 'circle',
+        symbolSize: 7,
+        connectNulls: false,
+        data: item.data,
+        lineStyle: { width: 2.5, color: item.color },
+        itemStyle: { color: item.color, borderColor: '#fff', borderWidth: 1.5 },
+        emphasis: { focus: 'series' }
+      }))
+    };
+
+    chart.setOption(option);
+    renderLegend();
+    setCategoryFilter('全部');
+
+    chart.on('legendselectchanged', (event) => {
+      Object.assign(selectedState, event.selected);
+      syncLegendUI();
+    });
+
+    document.querySelectorAll('.chip').forEach((chip) => {
+      chip.addEventListener('click', () => setCategoryFilter(chip.dataset.filter));
+    });
+
+    window.addEventListener('resize', () => chart.resize());
+  </script>
 </body>
 </html>
